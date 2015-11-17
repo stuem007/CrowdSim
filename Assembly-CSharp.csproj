@@ -6,7 +6,7 @@
 	<ProductVersion>10.0.20506</ProductVersion>
 	<SchemaVersion>2.0</SchemaVersion>
 	<RootNamespace></RootNamespace>
-	<ProjectGuid>{8A1DFE26-9755-5B61-DA5D-60CD549B525A}</ProjectGuid>
+	<ProjectGuid>{3290E852-B977-1719-E253-AC0CC04A7640}</ProjectGuid>
 	<OutputType>Library</OutputType>
 	<AppDesignerFolder>Properties</AppDesignerFolder>
 	<AssemblyName>Assembly-CSharp</AssemblyName>
@@ -46,17 +46,11 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\MotionPlanner.cs" />
- <Reference Include="UnityEngine.Advertisements">
- <HintPath>S:/Program Files (Non-SSD)/Unity/Editor/Data/UnityExtensions/Unity/Advertisements/UnityEngine.Advertisements.dll</HintPath>
- </Reference>
  <Reference Include="UnityEngine.UI">
  <HintPath>S:/Program Files (Non-SSD)/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.Networking">
  <HintPath>S:/Program Files (Non-SSD)/Unity/Editor/Data/UnityExtensions/Unity/Networking/UnityEngine.Networking.dll</HintPath>
- </Reference>
- <Reference Include="UnityEngine.Analytics">
- <HintPath>S:/Program Files (Non-SSD)/Unity/Editor/Data/UnityExtensions/Unity/UnityAnalytics/UnityEngine.Analytics.dll</HintPath>
  </Reference>
  <Reference Include="Mono.Cecil">
  <HintPath>S:/Program Files (Non-SSD)/Unity/Editor/Data/Managed/Mono.Cecil.dll</HintPath>

@@ -134,7 +134,7 @@ public class MotionPlanner : MonoBehaviour {
 		
 		public bool addNeighbor(Node neighborNode, Collider[] obstacles){
 			float distance = (neighborNode.position - position).magnitude;
-            if (willCollide(neighborNode.position, obstacles))
+            if (circleCollides(new Vector2(position.x, position.z), new Vector2(neighborNode.position.x, neighborNode.position.z), obstacles))
             {
                 return false;
             }
@@ -152,7 +152,36 @@ public class MotionPlanner : MonoBehaviour {
 			return true;
 		}
 
-		public bool willCollide(Vector3 neighborPos, Collider[] obstacles) {
+
+
+        public bool circleCollides(Vector2 pos1, Vector2 pos2, Collider[] obstacles)
+        {
+            float a = pos2.x - pos1.x;
+            float b = pos1.y - pos2.y;
+            float c = (pos1.x - pos2.x) * pos1.y + (pos2.y - pos1.y) * pos1.x;
+
+            foreach (SphereCollider col in obstacles)
+            {
+                float xC = col.bounds.center.x;
+                float yC = col.bounds.center.z;
+                float rad = col.radius;
+
+                float num = Mathf.Abs(a * xC + b * yC + c);
+                float den = Mathf.Sqrt(a * a + b * b);
+
+                if ((num / den) <= rad)
+                {
+                    return true;
+                }
+            }
+
+
+            return false;
+        }
+
+
+
+        public bool willCollide(Vector3 neighborPos, Collider[] obstacles) {
 			Ray posToNode = new Ray(position, (neighborPos - position));
 			RaycastHit hitInfo;
 			float distance = (neighborPos - position).magnitude;
