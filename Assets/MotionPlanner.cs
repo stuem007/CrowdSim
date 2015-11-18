@@ -11,6 +11,7 @@ public class MotionPlanner : MonoBehaviour {
 	public GameObject Agent;
     public GameObject StartObj;
 	public Collider[] Obstacles;
+    public static float agentRad;
 	public static Vector3 minimum;
 	public static Vector3 maximum;
     public GameObject startX;
@@ -21,6 +22,7 @@ public class MotionPlanner : MonoBehaviour {
 	public GameObject Prefab;
 	public static GameObject Lines;
 	public GameObject LinesObj;
+    public static GameObject[] nodePrefabs;
 
 	public float speed;
 	public int pathIndex;
@@ -32,6 +34,7 @@ public class MotionPlanner : MonoBehaviour {
 		Lines = LinesObj;
         minimum = new Vector3(-9, 1, -9);
         maximum = new Vector3(9, 1, 9);
+        agentRad = Agent.GetComponent<SphereCollider>().radius;
         buildConfigSpace();         
     }
 
@@ -40,7 +43,7 @@ public class MotionPlanner : MonoBehaviour {
         // Get results from Dijkstra's algorithm
         if (Input.GetKeyDown("d"))
         {
-			print("Djikstra");
+            print("Djikstra");
             while (true)
             {
                 Graph g = new Graph(40, 5, Obstacles);
@@ -51,10 +54,14 @@ public class MotionPlanner : MonoBehaviour {
                     {
                         print(g.solnDijkstra[i].position);
                     }
-					path = g.solnDijkstra;
+                    g.dispNodes();
+                    path = g.solnDijkstra;
+                    dispResults(path);
                     break;
                 }
             }
+
+
         }
         // Get results from A* algorithm
         else if (Input.GetKeyDown("a"))
@@ -70,7 +77,9 @@ public class MotionPlanner : MonoBehaviour {
                     {
                         print(g.solnAStar[i].position);
                     }
+                    g.dispNodes();
 					path = g.solnAStar;
+                    dispResults(path);
                     break;
                 }
             }
@@ -81,6 +90,24 @@ public class MotionPlanner : MonoBehaviour {
 			if((Agent.transform.position == path[pathIndex].position) && (pathIndex!=path.Count-1))pathIndex++;
 			Agent.transform.position = Vector3.MoveTowards(Agent.transform.position, path[pathIndex].position, step);
 		}
+    }
+
+    public void dispResults(List<Node> path)
+    {
+        for (int i = 0; i < path.Count() - 1; i++)
+        {
+            //Instantiate the node so we have a visual representation
+            Debug.DrawLine(path[i].position, path[i + 1].position, Color.yellow, 20, false);
+            /*foreach (Node neighbor in path[i].neighbors.Values)
+            {
+                //Create lines from the node to each nearest neighbor
+                //Total of i*j*2 elements
+                //Lines.GetComponent<LineRenderer>().SetPosition((2*(i*neighbors.Length+j)), contents[i].position);
+                //Lines.GetComponent<LineRenderer>().SetPosition((2*(i*neighbors.Length+j)+1), neighbor.position);  
+                Debug.DrawLine(path[i].position, neighbor.position);
+            }*/
+        }
+
     }
 
     public void updatePos()
@@ -123,14 +150,6 @@ public class MotionPlanner : MonoBehaviour {
             //AddNodeLight();
             numNeighbors = k;
 		}
-
-        private void AddNodeLight(){
-            NodeLight = new GameObject("The Light");
-            Light LightComp = NodeLight.AddComponent<Light>();
-            LightComp.color = Color.magenta;
-            NodeLight.transform.position = position;
-            LightComp.range = 10F;
-        }
 		
 		public bool addNeighbor(Node neighborNode, Collider[] obstacles){
 			float distance = (neighborNode.position - position).magnitude;
@@ -164,7 +183,7 @@ public class MotionPlanner : MonoBehaviour {
             {
                 float xC = col.bounds.center.x;
                 float yC = col.bounds.center.z;
-                float rad = col.radius;
+                float rad = col.radius + agentRad;
 
                 float num = Mathf.Abs(a * xC + b * yC + c);
                 float den = Mathf.Sqrt(a * a + b * b);
@@ -237,28 +256,22 @@ public class MotionPlanner : MonoBehaviour {
             }
             start.addNeighbor(goal, Obstacles);
 					
-			for (int i = 0; i < n; i++){
-				//Instantiate the node so we have a visual representation
-				Instantiate(NodePrefab, contents[i].position, Quaternion.identity);
-				Node[] neighbors = contents[i].neighbors.Values.ToArray();
-				for (int j = 0; j < k; j++){
-					//Create lines from the node to each nearest neighbor
-					//Total of i*j*2 elements
-					Lines.GetComponent<LineRenderer>().SetPosition((2*(i*neighbors.Length+j)), contents[i].position);
-					Lines.GetComponent<LineRenderer>().SetPosition((2*(i*neighbors.Length+j)+1), neighbors[j].position);  
-					//Debug.DrawLine(contents[i].position, neighbors[j].position);
-				}
-			}
-			Node[] startNeighbors = start.neighbors.Values.ToArray();
-			for (int i = 0; i < k; i++)
-			{
-                Lines.GetComponent<LineRenderer>().SetPosition((2 * n * k) + 2 * i, startNeighbors[i].position);
-                Lines.GetComponent<LineRenderer>().SetPosition((2 * n * k) + 2 * i + 1, start.position);   
+            foreach (Node neighbor in start.neighbors.Values)
+            {
+                Debug.DrawLine(start.position, neighbor.position);
 			}
 
             Solve soln = new Solve(start, goal);
             solnDijkstra = soln.Dijkstra();
             solnAStar = soln.AStar();        
+        }
+
+        public void dispNodes()
+        {
+            foreach (Node n in contents)
+            {
+                Instantiate(NodePrefab, n.position, Quaternion.identity);
+            }
         }
 	}
 
