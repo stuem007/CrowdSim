@@ -88,6 +88,33 @@ void createAgents()
   cir.setFill(color(0, 0, 125));
   cir.setStroke(255);
   Starts.add(new Node(new PVector(220, 20), 20, cir, 0));
+  
+  cir = createShape(ELLIPSE, 300, 20, 20, 20);
+  cir.setFill(color(0, 0, 255));
+  cir.setStroke(255);
+  Agents.add(new Node(new PVector(300, 20), 20, cir, 0));
+  cir = createShape(ELLIPSE, 300, 20, 20, 20);
+  cir.setFill(color(0, 0, 125));
+  cir.setStroke(255);
+  Starts.add(new Node(new PVector(300, 20), 20, cir, 0));
+  
+  cir = createShape(ELLIPSE, 400, 20, 20, 20);
+  cir.setFill(color(0, 0, 255));
+  cir.setStroke(255);
+  Agents.add(new Node(new PVector(400, 20), 20, cir, 0));
+  cir = createShape(ELLIPSE, 400, 20, 20, 20);
+  cir.setFill(color(0, 0, 125));
+  cir.setStroke(255);
+  Starts.add(new Node(new PVector(400, 20), 20, cir, 0));
+  
+  cir = createShape(ELLIPSE, 450, 20, 20, 20);
+  cir.setFill(color(0, 0, 255));
+  cir.setStroke(255);
+  Agents.add(new Node(new PVector(450, 20), 20, cir, 0));
+  cir = createShape(ELLIPSE, 450, 20, 20, 20);
+  cir.setFill(color(0, 0, 125));
+  cir.setStroke(255);
+  Starts.add(new Node(new PVector(450, 20), 20, cir, 0));
 }
 
 void createNodes()
@@ -248,18 +275,43 @@ void updateAgents(float dT)
   for (int i = 0; i < Agents.size(); i ++)
   {
     Node ag = Agents.get(i);
-    Node goal = paths.get(i).get(ag.goal);
     
-    PVector change = PVector.mult(PVector.sub(goal.pos, ag.pos).normalize(), agentSpeed * dT);
-    ag.pos.add(change);
-    ag.shape.translate(change.x, change.y);
-    
-    if (PVector.sub(goal.pos, ag.pos).mag() < 5 && ag.goal < paths.get(i).size() - 1)
-    {
-      ag.goal ++; 
+    if (!ag.finished)
+    {  
+      Node goal = paths.get(i).get(ag.goal);
+      
+      PVector change = PVector.mult(PVector.sub(goal.pos, ag.pos).normalize(), agentSpeed * dT);
+      
+      for (int j = 0; j < Agents.size(); j++)
+      {
+        if (i != j)
+        {
+          Node cmp = Agents.get(j);
+          PVector dir = PVector.sub(cmp.pos, ag.pos);
+          if (!cmp.finished && dir.mag() < 20)
+          {
+            PVector diff = PVector.mult(PVector.mult(dir.normalize(), -1), 7 / dir.mag()); 
+            change.add(diff);
+          }        
+        }
+      }
+      
+      ag.pos.add(change);
+      ag.shape.translate(change.x, change.y);
+      
+      if (PVector.sub(goal.pos, ag.pos).mag() < 5)
+      {
+        if (ag.goal < paths.get(i).size() - 1)
+        {
+          ag.goal ++;
+        }
+        else if (PVector.sub(goal.pos, ag.pos).mag() < 0.5)
+        {
+          ag.finished = true; 
+        }
+      }
     }
-  }
-  
+  }  
 }
 
 
@@ -272,6 +324,7 @@ class Node
   ArrayList<Node> neighbors = new ArrayList<Node>();
   int ind;
   int goal = 0;
+  boolean finished = false;
   
   public Node(PVector posIn, float radIn, PShape shapeIn, int indIn)
   {
