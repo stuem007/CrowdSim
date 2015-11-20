@@ -9,7 +9,7 @@ float currentTime;
 float dT;
 float timeCount = 0;
 int nodeCt = 100;
-float agentSpeed = 70;
+float agentSpeed = 7;
 
 // This function is run once on program initialization
 void setup()
