@@ -11,6 +11,7 @@ float timeCount = 0;
 int nodeCt = 100;
 float agentSpeed = 70;
 
+// This function is run once on program initialization
 void setup()
 {  
   size(500, 500, P2D);
@@ -23,6 +24,7 @@ void setup()
   
   findNeighbors();
   
+  // Builds array containing one of the Start positions as the first element, followed by all the pathfinding Nodes, with the Goal last
   Node[] graph = new Node[nodeCt + 2];
   for (int i = 0; i < nodeCt; i ++)
   {
@@ -30,6 +32,8 @@ void setup()
   }
   graph[nodeCt + 1] = Goal;
   
+  // For every Start position, run Dijkstra's Algorithm to return an ArrayList of nodes representing the path, including the start and goal nodes
+  // These paths are stored in the paths ArrayList (see Global definitions)
   for (Node st : Starts)
   {
     graph[0] = st;
@@ -44,6 +48,7 @@ void setup()
   lastTime = millis();
 }
 
+// Create a singular goal stored in the Goal global variable
 void createGoal()
 { 
   PShape cir = createShape(ELLIPSE, 480, 480, 20, 20);
@@ -52,6 +57,7 @@ void createGoal()
   Goal = new Node(new PVector(480, 480), 20, cir, nodeCt + 1);   
 }
 
+// Create random obstacles stored in the Obstacles global variable
 void createObstacles()
 {
   float x, y, rad;
@@ -69,6 +75,8 @@ void createObstacles()
   }
 }
 
+// Create a hard-coded number of agents stored in the Agents global variable
+// Each agent has a corresponding start node in the Starts array to anchor the beginning of their path when the agent starts to move
 void createAgents()
 {
   PShape cir = createShape(ELLIPSE, 20, 20, 20, 20);
@@ -117,6 +125,8 @@ void createAgents()
   Starts.add(new Node(new PVector(450, 20), 20, cir, 0));
 }
 
+// Generate a number of random graph nodes (defined by global nodeCt variable) for pathfinding, eliminating any that overlap with the obstacles, agents, or goal
+// These nodes are stored in the Nodes global variable
 void createNodes()
 {
   float x, y;
@@ -163,6 +173,7 @@ void createNodes()
   }
 }
 
+// Adds neighbors for each pathfinding node; collision-checking for connections is currently not enabled
 void findNeighbors()
 {
   int sz = Nodes.size();
@@ -192,6 +203,7 @@ void findNeighbors()
   }
 }
 
+// TODO: finish collision checker
 boolean circleCollides(PVector pos1, PVector pos2)
 {
     /*float a = pos2.x - pos1.x;
@@ -215,6 +227,7 @@ boolean circleCollides(PVector pos1, PVector pos2)
     return false;
 }
 
+// This function runs as the program executes, drawing nodes and lines in the window
 void draw()
 {
   
@@ -267,9 +280,8 @@ void draw()
   }
 }
 
-
-
-
+// This function is responsible for moving the agents; they are drawn towards the nearest node in their calculated path at a fixed speed (globally defined as agentSpeed) and a basic collision check repels them from nearby agents
+// TODO: Replace this collision checker with Boids implementation
 void updateAgents(float dT)
 {
   for (int i = 0; i < Agents.size(); i ++)
@@ -315,7 +327,7 @@ void updateAgents(float dT)
 }
 
 
-
+// Node class definition, which is used for agents, goals, start points, graph nodes, and obstacles
 class Node
 {
   PVector pos;
@@ -335,6 +347,7 @@ class Node
   }   
 }
 
+// Dijkstra pathfinding implementation, which returns an arraylist of Nodes including the start and goal nodes. The indexing isn't pretty, but it gets the job done.
 ArrayList<Node> Dijkstra(Node[] graph, Node agent)
 { 
   int len = graph.length;
@@ -383,7 +396,7 @@ ArrayList<Node> Dijkstra(Node[] graph, Node agent)
     for (Node nb : cur.neighbors)
     {
       alt = dist[graphIndex] + PVector.sub(cur.pos, nb.pos).mag();
-      print("alt is " + alt + ", old alt is " + dist[nb.ind] + "\n");
+      //print("alt is " + alt + ", old alt is " + dist[nb.ind] + "\n");
       if (alt < dist[nb.ind])
       {
         dist[nb.ind] = alt;
