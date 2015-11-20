@@ -54,7 +54,7 @@ void createGoal()
   PShape cir = createShape(ELLIPSE, 480, 480, 20, 20);
   cir.setFill(color(255, 0, 0));
   cir.setStroke(255);
-  Goal = new Node(new PVector(480, 480), 20, cir, nodeCt + 1);   
+  Goal = new Node(new PVector(480, 480), 10, cir, nodeCt + 1);   
 }
 
 // Create random obstacles stored in the Obstacles global variable
@@ -65,9 +65,9 @@ void createObstacles()
   {
     x = random(100, 400);
     y = random(100, 400);
-    rad = random(50, 100);
+    rad = random(25, 50);
     
-    PShape cir = createShape(ELLIPSE, x, y, rad, rad);
+    PShape cir = createShape(ELLIPSE, x, y, 2 * rad, 2 * rad);
     cir.setFill(color(0, 255, 0));
     cir.setStroke(255);
     
@@ -82,47 +82,47 @@ void createAgents()
   PShape cir = createShape(ELLIPSE, 20, 20, 20, 20);
   cir.setFill(color(0, 0, 255));
   cir.setStroke(255);
-  Agents.add(new Node(new PVector(20, 20), 20, cir, 0));
+  Agents.add(new Node(new PVector(20, 20), 10, cir, 0));
   cir = createShape(ELLIPSE, 20, 20, 20, 20);
   cir.setFill(color(0, 0, 125));
   cir.setStroke(255);
-  Starts.add(new Node(new PVector(20, 20), 20, cir, 0));   
+  Starts.add(new Node(new PVector(20, 20), 10, cir, 0));   
   
   cir = createShape(ELLIPSE, 220, 20, 20, 20);
   cir.setFill(color(0, 0, 255));
   cir.setStroke(255);
-  Agents.add(new Node(new PVector(220, 20), 20, cir, 0));
+  Agents.add(new Node(new PVector(220, 20), 10, cir, 0));
   cir = createShape(ELLIPSE, 220, 20, 20, 20);
   cir.setFill(color(0, 0, 125));
   cir.setStroke(255);
-  Starts.add(new Node(new PVector(220, 20), 20, cir, 0));
+  Starts.add(new Node(new PVector(220, 20), 10, cir, 0));
   
   cir = createShape(ELLIPSE, 300, 20, 20, 20);
   cir.setFill(color(0, 0, 255));
   cir.setStroke(255);
-  Agents.add(new Node(new PVector(300, 20), 20, cir, 0));
+  Agents.add(new Node(new PVector(300, 20), 10, cir, 0));
   cir = createShape(ELLIPSE, 300, 20, 20, 20);
   cir.setFill(color(0, 0, 125));
   cir.setStroke(255);
-  Starts.add(new Node(new PVector(300, 20), 20, cir, 0));
+  Starts.add(new Node(new PVector(300, 20), 10, cir, 0));
   
   cir = createShape(ELLIPSE, 400, 20, 20, 20);
   cir.setFill(color(0, 0, 255));
   cir.setStroke(255);
-  Agents.add(new Node(new PVector(400, 20), 20, cir, 0));
+  Agents.add(new Node(new PVector(400, 20), 10, cir, 0));
   cir = createShape(ELLIPSE, 400, 20, 20, 20);
   cir.setFill(color(0, 0, 125));
   cir.setStroke(255);
-  Starts.add(new Node(new PVector(400, 20), 20, cir, 0));
+  Starts.add(new Node(new PVector(400, 20), 10, cir, 0));
   
   cir = createShape(ELLIPSE, 450, 20, 20, 20);
   cir.setFill(color(0, 0, 255));
   cir.setStroke(255);
-  Agents.add(new Node(new PVector(450, 20), 20, cir, 0));
+  Agents.add(new Node(new PVector(450, 20), 10, cir, 0));
   cir = createShape(ELLIPSE, 450, 20, 20, 20);
   cir.setFill(color(0, 0, 125));
   cir.setStroke(255);
-  Starts.add(new Node(new PVector(450, 20), 20, cir, 0));
+  Starts.add(new Node(new PVector(450, 20), 10, cir, 0));
 }
 
 // Generate a number of random graph nodes (defined by global nodeCt variable) for pathfinding, eliminating any that overlap with the obstacles, agents, or goal
@@ -146,7 +146,7 @@ void createNodes()
     
     for (Node ob : Obstacles)
     {  
-      if (PVector.sub(pos, ob.pos).mag() < ob.rad)
+      if (PVector.sub(pos, ob.pos).mag() < ob.rad + 10)
       {
         valid = false;
       }
@@ -154,13 +154,13 @@ void createNodes()
     
     for (Node ag : Agents)
     {  
-      if (PVector.sub(pos, ag.pos).mag() < ag.rad)
+      if (PVector.sub(pos, ag.pos).mag() < ag.rad + 10)
       {
         valid = false;
       }
     }
     
-    if (PVector.sub(pos, Goal.pos).mag() < Goal.rad + 10)
+    if (PVector.sub(pos, Goal.pos).mag() < Goal.rad + 10 + 10)
     {
       valid = false;
     }
@@ -168,7 +168,7 @@ void createNodes()
     if (valid)
     {
       ct ++;
-      Nodes.add(new Node(pos, 10, cir, ct));  
+      Nodes.add(new Node(pos, 5, cir, ct));  
     }
   }
 }
@@ -203,27 +203,33 @@ void findNeighbors()
   }
 }
 
-// TODO: finish collision checker
+// Ensures edges of graph don't pass through obstacles
 boolean circleCollides(PVector pos1, PVector pos2)
 {
-    /*float a = pos2.x - pos1.x;
-    float b = pos1.y - pos2.y;
-    float c = (pos1.x - pos2.x) * pos1.y + (pos2.y - pos1.y) * pos1.x;
-
+    PVector pos3;
+    float rad, area, triHeight;
     for (Node ob : Obstacles)
     {
-        float xO = ob.pos.x;
-        float yO = ob.pos.y;
-        float rad = ob.rad + 10;
-
-        float num = Math.abs(a * xO + b * yO + c);
-        float den = (float)Math.sqrt(a * a + b * b);
-
-        if ((num / den) <= rad)
+        rad = ob.rad + 10;
+        pos3 = ob.pos;
+        
+        if ((pos1.x > pos3.x + rad && pos2.x > pos3.x + rad) || (pos1.x < pos3.x - rad && pos2.x < pos3.x - rad) || (pos1.y > pos3.y + rad && pos2.y > pos3.y + rad) || (pos1.y < pos3.y - rad && pos2.y < pos3.y - rad))
         {
-            return true;
+          
         }
-    }*/
+        else
+        {
+          area = Math.abs((pos1.x * (pos2.y - pos3.y) + pos2.x * (pos3.y - pos1.y) + pos3.x * (pos1.y - pos2.y)) / 2);
+          
+          triHeight = (2 * area) / (PVector.sub(pos2, pos1).mag());
+          print("pos 1: " + pos1 + " pos2: " + pos2 + " pos3 " + pos3 + " area: " + area + " triheight: " + triHeight + " rad: " + rad + "\n");
+  
+          if (triHeight <= rad)
+          {
+              return true;
+          }
+        }       
+    }
     return false;
 }
 
@@ -367,8 +373,7 @@ ArrayList<Node> Dijkstra(Node[] graph, Node agent)
   Node cur;
   float alt;
   int target = 0;
-  
-  print("entering 'while' loop with Q size " + Q.size() + "\n");
+ 
   while (Q.size() > 0)
   {
     float minVal = 10000;
@@ -382,12 +387,10 @@ ArrayList<Node> Dijkstra(Node[] graph, Node agent)
           qIndex = i;
       }
     }
-    print("Min dist is: " + minVal + "\n");
     cur = Q.get(qIndex);
     graphIndex = cur.ind;
     if (graphIndex == nodeCt + 1)
     {
-      print("breaking early\n");
       target = graphIndex;
       break;  
     }
@@ -396,7 +399,6 @@ ArrayList<Node> Dijkstra(Node[] graph, Node agent)
     for (Node nb : cur.neighbors)
     {
       alt = dist[graphIndex] + PVector.sub(cur.pos, nb.pos).mag();
-      //print("alt is " + alt + ", old alt is " + dist[nb.ind] + "\n");
       if (alt < dist[nb.ind])
       {
         dist[nb.ind] = alt;
